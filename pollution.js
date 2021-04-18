@@ -16,14 +16,14 @@ if ("geolocation" in navigator) {
                 let components = result.pollutionData.list[0].components
                 let res = ''
                 res = `<tr><th>Your coordinates: </th><th> Lat:  ${result.pollutionData.coord['lat']}  , Lon:   ${result.pollutionData.coord['lon']}  </th></tr>
-                         <tr><td>Carbon Monoxide (CO): </td><td>  ${components['co']}  </td></tr>
-                         <tr><td>Amonia (NH3): </td><td>  ${components['nh3']}  </td></tr>
-                         <tr><td>Nitric Oxide (NO): </td><td>  ${components['no']}  </td></tr>
-                         <tr><td>Nitric Dioxide (NO2): </td><td>  ${components['no2']}  </td></tr>
-                         <tr><td>Ozone (O3): </td><td>  ${components['o3']}  </td></tr>
-                         <tr><td>Particles smaller than 2.5mm: </td><td>  ${components['pm2_5']}  </td></tr>
-                         <tr><td>Particles smaller than 10mm: </td><td>  ${components['pm10']}  </td></tr>
-                         <tr><td>Sulfur Dioxide: </td><td>  ${components['so2']}  </td></tr>`
+                         <tr><td><a href="https://en.wikipedia.org/wiki/Carbon_monoxide" target="blank">Carbon Monoxide (CO)</a>: </td><td>  ${components['co']} μg/m<sup>3</sup> </td></tr>
+                         <tr><td><a href="https://en.wikipedia.org/wiki/Ammonia" target="blank">Amonia (NH3)</a>: </td><td>  ${components['nh3']} μg/m<sup>3</sup> </td></tr>
+                         <tr><td><a href="https://en.wikipedia.org/wiki/Nitric_oxide" target="blank">Nitrogen Monoxide (NO)</a>: </td><td>  ${components['no']} μg/m<sup>3</sup> </td></tr>
+                         <tr><td><a href="https://en.wikipedia.org/wiki/Nitrogen_dioxide" target="blank">Nitrogen Dioxide (NO2)</a>: </td><td>  ${components['no2']} μg/m<sup>3</sup> </td></tr>
+                         <tr><td><a href="https://en.wikipedia.org/wiki/Ozone" target="blank">Ozone (O3)</a>: </td><td>  ${components['o3']} μg/m<sup>3</sup> </td></tr>
+                         <tr><td><a href="https://en.wikipedia.org/wiki/Particulates#Size,_shape_and_solubility_matter" target="blank">Particles < 2.5mm</a>: </td><td>  ${components['pm2_5']} μg/m<sup>3</sup> </td></tr>
+                         <tr><td><a href="https://en.wikipedia.org/wiki/Particulates#Size,_shape_and_solubility_matter" target="blank">Particles < 10mm</a>: </td><td>  ${components['pm10']} μg/m<sup>3</sup> </td></tr>
+                         <tr><td><a href="https://en.wikipedia.org/wiki/Sulfur_dioxide" target="blank">Sulfur Dioxide (SO2)</a>: </td><td>  ${components['so2']} μg/m<sup>3</sup> </td></tr>`
 
                 table.append(res)
                 
