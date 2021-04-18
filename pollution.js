@@ -1,4 +1,5 @@
 let table = $('#result')
+
 if ("geolocation" in navigator) {
     navigator.geolocation.getCurrentPosition(function(position) {
         console.log("you are in -->", position.coords.latitude, position.coords.longitude)
@@ -15,7 +16,7 @@ if ("geolocation" in navigator) {
                 
                 let components = result.pollutionData.list[0].components
                 let res = ''
-                res = `<tr><th>Your coordinates: </th><th> Lat:  ${result.pollutionData.coord['lat']}  , Lon:   ${result.pollutionData.coord['lon']}  </th></tr>
+                res = `<tr><th>Pollutant</th><th>Measure</th></tr>
                          <tr><td><a href="https://en.wikipedia.org/wiki/Carbon_monoxide" target="blank">Carbon Monoxide (CO)</a>: </td><td>  ${components['co']} μg/m<sup>3</sup> </td></tr>
                          <tr><td><a href="https://en.wikipedia.org/wiki/Ammonia" target="blank">Amonia (NH3)</a>: </td><td>  ${components['nh3']} μg/m<sup>3</sup> </td></tr>
                          <tr><td><a href="https://en.wikipedia.org/wiki/Nitric_oxide" target="blank">Nitrogen Monoxide (NO)</a>: </td><td>  ${components['no']} μg/m<sup>3</sup> </td></tr>
@@ -27,6 +28,7 @@ if ("geolocation" in navigator) {
 
                 table.append(res)
                 
+                document.getElementById("position").innerHTML = `<p><strong>Your position </strong>--> Lat: <strong> ${result.pollutionData.coord['lat']} </strong> , Lon: <strong>  ${result.pollutionData.coord['lon']} </strong> </p><br><br>`
 
                 console.log('pollution PHP',result);
                 
