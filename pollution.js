@@ -32,14 +32,14 @@ if ("geolocation" in navigator) {
 
                     const res = `
                         <tr><th>Pollutant</th><th>Measure</th></tr>
-                        <tr><td>Carbon Monoxide (CO)</td><td>${components.co} μg/m<sup>3</sup></td></tr>
-                        <tr><td>Ammonia (NH3)</td><td>${components.nh3} μg/m<sup>3</sup></td></tr>
-                        <tr><td>Nitrogen Monoxide (NO)</td><td>${components.no} μg/m<sup>3</sup></td></tr>
-                        <tr><td>Nitrogen Dioxide (NO2)</td><td>${components.no2} μg/m<sup>3</sup></td></tr>
-                        <tr><td>Ozone (O3)</td><td>${components.o3} μg/m<sup>3</sup></td></tr>
-                        <tr><td>Particles &lt; 2.5 μm</td><td>${components.pm2_5} μg/m<sup>3</sup></td></tr>
-                        <tr><td>Particles &lt; 10 μm</td><td>${components.pm10} μg/m<sup>3</sup></td></tr>
-                        <tr><td>Sulfur Dioxide (SO2)</td><td>${components.so2} μg/m<sup>3</sup></td></tr>
+                        <tr><td><a href="https://en.wikipedia.org/wiki/Carbon_monoxide" target="_blank" rel="noopener noreferrer">Carbon Monoxide (CO)</a></td><td>${components.co} μg/m<sup>3</sup></td></tr>
+                        <tr><td><a href="https://en.wikipedia.org/wiki/Ammonia" target="_blank" rel="noopener noreferrer">Ammonia (NH3)</a></td><td>${components.nh3} μg/m<sup>3</sup></td></tr>
+                        <tr><td><a href="https://en.wikipedia.org/wiki/Nitric_oxide" target="_blank" rel="noopener noreferrer">Nitrogen Monoxide (NO)</a></td><td>${components.no} μg/m<sup>3</sup></td></tr>
+                        <tr><td><a href="https://en.wikipedia.org/wiki/Nitrogen_dioxide" target="_blank" rel="noopener noreferrer">Nitrogen Dioxide (NO2)</a></td><td>${components.no2} μg/m<sup>3</sup></td></tr>
+                        <tr><td><a href="https://en.wikipedia.org/wiki/Ozone" target="_blank" rel="noopener noreferrer">Ozone (O3)</a></td><td>${components.o3} μg/m<sup>3</sup></td></tr>
+                        <tr><td><a href="https://en.wikipedia.org/wiki/Particulates" target="_blank" rel="noopener noreferrer">Particles &lt; 2.5 μm</a></td><td>${components.pm2_5} μg/m<sup>3</sup></td></tr>
+                        <tr><td><a href="https://en.wikipedia.org/wiki/Particulates" target="_blank" rel="noopener noreferrer">Particles &lt; 10 μm</a></td><td>${components.pm10} μg/m<sup>3</sup></td></tr>
+                        <tr><td><a href="https://en.wikipedia.org/wiki/Sulfur_dioxide" target="_blank" rel="noopener noreferrer">Sulfur Dioxide (SO2)</a></td><td>${components.so2} μg/m<sup>3</sup></td></tr>
                     `
 
                     table.html(res)
