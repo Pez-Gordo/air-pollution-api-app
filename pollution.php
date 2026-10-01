@@ -1,27 +1,113 @@
 <?php
 
-	$executionStartTime = microtime(true) / 1000;
-    $url='api.openweathermap.org/data/2.5/air_pollution?lat=' . $_POST['lat'] . '&lon=' . $_POST['lon'] . '&appid=4ef2716ffdcebe56f05f86c5c6adb952';
+declare(strict_types=1);
 
-	$ch = curl_init();
-	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-	curl_setopt($ch, CURLOPT_URL,$url);
+const OPENWEATHER_URL =
+    'https://api.openweathermap.org/data/2.5/air_pollution';
 
-	$result=curl_exec($ch);
+const OPENWEATHER_KEY_FILE =
+    '/etc/air-pollution-api-app/api-key';
 
-	curl_close($ch);
+header('Content-Type: application/json; charset=UTF-8');
+header('X-Content-Type-Options: nosniff');
+header('Cache-Control: no-store');
 
-	$decode = json_decode($result,true);	
+function fail(int $status, string $message): never
+{
+    http_response_code($status);
 
-	$output['status']['code'] = "200";
-	$output['status']['name'] = "ok";
-	$output['status']['description'] = "mission saved";
-	$output['status']['returnedIn'] = (microtime(true) - $executionStartTime) / 1000 . " ms";
-	$output['pollutionData'] = $decode;
-	
-	header('Content-Type: application/json; charset=UTF-8');
+    echo json_encode([
+        'status' => [
+            'code' => $status,
+            'name' => 'error',
+            'description' => $message,
+        ],
+    ]);
 
-	echo json_encode($output); 
+    exit;
+}
 
-?>
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    fail(405, 'Method not allowed.');
+}
+
+$lat = filter_input(INPUT_POST, 'lat', FILTER_VALIDATE_FLOAT);
+$lon = filter_input(INPUT_POST, 'lon', FILTER_VALIDATE_FLOAT);
+
+if ($lat === false || $lat === null || $lat < -90 || $lat > 90) {
+    fail(400, 'Invalid latitude.');
+}
+
+if ($lon === false || $lon === null || $lon < -180 || $lon > 180) {
+    fail(400, 'Invalid longitude.');
+}
+
+$apiKey = @file_get_contents(OPENWEATHER_KEY_FILE);
+
+if ($apiKey === false || trim($apiKey) === '') {
+    fail(500, 'API configuration unavailable.');
+}
+
+$query = http_build_query([
+    'lat' => $lat,
+    'lon' => $lon,
+    'appid' => trim($apiKey),
+]);
+
+$ch = curl_init(OPENWEATHER_URL . '?' . $query);
+
+if ($ch === false) {
+    fail(500, 'Unable to initialise API request.');
+}
+
+curl_setopt_array($ch, [
+    CURLOPT_RETURNTRANSFER => true,
+    CURLOPT_FOLLOWLOCATION => false,
+    CURLOPT_CONNECTTIMEOUT => 5,
+    CURLOPT_TIMEOUT => 15,
+    CURLOPT_HTTPHEADER => [
+        'Accept: application/json',
+    ],
+]);
+
+$result = curl_exec($ch);
+
+if ($result === false) {
+    curl_close($ch);
+    fail(502, 'OpenWeather is unavailable.');
+}
+
+$status = curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
+$contentType = curl_getinfo($ch, CURLINFO_CONTENT_TYPE);
+
+curl_close($ch);
+
+if ($status < 200 || $status >= 300) {
+    fail(502, 'OpenWeather returned an HTTP error.');
+}
+
+if (
+    !is_string($contentType) ||
+    stripos($contentType, 'application/json') === false
+) {
+    fail(502, 'Unexpected OpenWeather response.');
+}
+
+$decoded = json_decode($result, true);
+
+if (
+    !is_array($decoded) ||
+    !isset($decoded['coord']) ||
+    !isset($decoded['list'][0]['components'])
+) {
+    fail(502, 'Invalid OpenWeather response.');
+}
+
+echo json_encode([
+    'status' => [
+        'code' => 200,
+        'name' => 'ok',
+        'description' => 'success',
+    ],
+    'pollutionData' => $decoded,
+]);

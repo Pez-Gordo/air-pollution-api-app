@@ -1,47 +1,82 @@
-let table = $('#result')
+const table = $('#result')
+const positionElement = document.getElementById("position")
+
+const showError = (message) => {
+    table.empty()
+    positionElement.textContent = message
+}
 
 if ("geolocation" in navigator) {
-    navigator.geolocation.getCurrentPosition(function(position) {
-        console.log("you are in -->", position.coords.latitude, position.coords.longitude)
-    
-        $.ajax({
-            url: "pollution.php",
-            type: 'post',
-            dataType: 'json',
-            data: {
-                lat: position.coords.latitude,
-                lon: position.coords.longitude,
-            },      
-            success: function(result) {
-                
-                let components = result.pollutionData.list[0].components
-                let res = ''
-                res = `<tr><th>Pollutant</th><th>Measure</th></tr>
-                         <tr><td><a href="https://en.wikipedia.org/wiki/Carbon_monoxide" target="blank">Carbon Monoxide (CO)</a>: </td><td>  ${components['co']} μg/m<sup>3</sup> </td></tr>
-                         <tr><td><a href="https://en.wikipedia.org/wiki/Ammonia" target="blank">Amonia (NH3)</a>: </td><td>  ${components['nh3']} μg/m<sup>3</sup> </td></tr>
-                         <tr><td><a href="https://en.wikipedia.org/wiki/Nitric_oxide" target="blank">Nitrogen Monoxide (NO)</a>: </td><td>  ${components['no']} μg/m<sup>3</sup> </td></tr>
-                         <tr><td><a href="https://en.wikipedia.org/wiki/Nitrogen_dioxide" target="blank">Nitrogen Dioxide (NO2)</a>: </td><td>  ${components['no2']} μg/m<sup>3</sup> </td></tr>
-                         <tr><td><a href="https://en.wikipedia.org/wiki/Ozone" target="blank">Ozone (O3)</a>: </td><td>  ${components['o3']} μg/m<sup>3</sup> </td></tr>
-                         <tr><td><a href="https://en.wikipedia.org/wiki/Particulates#Size,_shape_and_solubility_matter" target="blank">Particles < 2.5mm</a>: </td><td>  ${components['pm2_5']} μg/m<sup>3</sup> </td></tr>
-                         <tr><td><a href="https://en.wikipedia.org/wiki/Particulates#Size,_shape_and_solubility_matter" target="blank">Particles < 10mm</a>: </td><td>  ${components['pm10']} μg/m<sup>3</sup> </td></tr>
-                         <tr><td><a href="https://en.wikipedia.org/wiki/Sulfur_dioxide" target="blank">Sulfur Dioxide (SO2)</a>: </td><td>  ${components['so2']} μg/m<sup>3</sup> </td></tr>`
 
-                table.append(res)
-                
-                document.getElementById("position").innerHTML = `<p><strong>Your position </strong>--> Lat: <strong> ${result.pollutionData.coord['lat']} </strong> , Lon: <strong>  ${result.pollutionData.coord['lon']} </strong> </p><br><br>`
+    navigator.geolocation.getCurrentPosition(
+        function(position) {
 
-                console.log('pollution PHP',result);
-                
+            $.ajax({
+                url: "pollution.php",
+                type: "post",
+                dataType: "json",
+                data: {
+                    lat: position.coords.latitude,
+                    lon: position.coords.longitude
+                },
 
-            
-            },
-            error: function(jqXHR, textStatus, errorThrown) {
-                console.log(textStatus, errorThrown);
+                success: function(result) {
+
+                    const pollutionData = result?.pollutionData
+                    const components = pollutionData?.list?.[0]?.components
+
+                    if (!components || !pollutionData?.coord) {
+                        showError("Unable to read air pollution data.")
+                        return
+                    }
+
+                    const res = `
+                        <tr><th>Pollutant</th><th>Measure</th></tr>
+                        <tr><td>Carbon Monoxide (CO)</td><td>${components.co} μg/m<sup>3</sup></td></tr>
+                        <tr><td>Ammonia (NH3)</td><td>${components.nh3} μg/m<sup>3</sup></td></tr>
+                        <tr><td>Nitrogen Monoxide (NO)</td><td>${components.no} μg/m<sup>3</sup></td></tr>
+                        <tr><td>Nitrogen Dioxide (NO2)</td><td>${components.no2} μg/m<sup>3</sup></td></tr>
+                        <tr><td>Ozone (O3)</td><td>${components.o3} μg/m<sup>3</sup></td></tr>
+                        <tr><td>Particles &lt; 2.5 μm</td><td>${components.pm2_5} μg/m<sup>3</sup></td></tr>
+                        <tr><td>Particles &lt; 10 μm</td><td>${components.pm10} μg/m<sup>3</sup></td></tr>
+                        <tr><td>Sulfur Dioxide (SO2)</td><td>${components.so2} μg/m<sup>3</sup></td></tr>
+                    `
+
+                    table.html(res)
+
+                    positionElement.innerHTML =
+                        `<p><strong>Your position</strong> → Lat: <strong>${pollutionData.coord.lat}</strong>, Lon: <strong>${pollutionData.coord.lon}</strong></p>`
+                },
+
+                error: function(jqXHR) {
+                    const message =
+                        jqXHR.responseJSON?.status?.description ||
+                        "Unable to retrieve air pollution data."
+
+                    showError(message)
+                }
+            })
+        },
+
+        function(error) {
+            if (error.code === error.PERMISSION_DENIED) {
+                showError("Location permission was denied.")
+            } else if (error.code === error.POSITION_UNAVAILABLE) {
+                showError("Your location is unavailable.")
+            } else if (error.code === error.TIMEOUT) {
+                showError("Location request timed out.")
+            } else {
+                showError("Unable to determine your location.")
             }
-        });         
-    
-    });
-    
-  } else {
-    console.log("la geolocalización no está disponible")
-  }
+        },
+
+        {
+            enableHighAccuracy: false,
+            timeout: 10000,
+            maximumAge: 300000
+        }
+    )
+
+} else {
+    showError("Geolocation is not available in this browser.")
+}
